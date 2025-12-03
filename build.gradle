@@ -1,16 +1,28 @@
 plugins {
     id 'application'
     id 'java'
+    id 'idea'
 }
+
+group = 'com.example.encryptor7z'
+version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
 repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenLocal()
     mavenCentral()
+        maven { url 'https://repo.spring.io/milestone' }
+        maven { url 'https://repo.spring.io/snapshot' }
+        maven { url 'https://oss.sonatype.org/content/repositories/releases' }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
 }
 
 dependencies {
@@ -22,6 +34,10 @@ dependencies {
 
 application {
     mainClass = 'com.example.encryptor7z.EncryptorApp'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
 
 tasks.withType(Test).configureEach {
