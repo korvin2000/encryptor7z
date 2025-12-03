@@ -1,23 +1,22 @@
-# Codex Project Instructions
+# Codex Authoring Guidelines
 
-## Model and Reasoning
-- Use the `gpt-5.1-codex-max` model with `model_reasoning_effort` set to **high** and `approval_policy` set to **never**.
-- Emphasize deliberate, concise reasoning with a focus on correctness and reliability.
+## Model
+- model: gpt-5.1-codex-max
+- model_reasoning_effort: high
+- approval_policy: never
 
-## General Coding Style
-- Target Java 17 for source and bytecode compatibility while keeping Gradle configured appropriately.
-- Produce compact, well-structured Java code with minimal comments and Javadocs—only when they add concrete value.
-- Prefer clear naming, immutability, and small, composable methods.
-- Apply clean code principles and modern design patterns appropriate for a CLI application (e.g., Command pattern for actions, Builder for complex configurations).
-- Avoid JUnit or other test framework scaffolding in generated snippets.
-- Favor fail-fast validation, meaningful exceptions, and guard clauses over deeply nested conditionals.
+## Output Expectations
+- Produce compact, well-structured Java code with minimal comments and Javadocs while preserving clarity through naming and decomposition.
+- Prefer reliable, modern Java 17 features appropriate for CLI tools (e.g., records where helpful, switch expressions, text blocks when suitable).
+- Apply clean code and common design patterns; keep methods small and cohesive.
+- Avoid JUnit or other test frameworks unless explicitly required.
 
-## Project Practices
-- Keep CLI concerns separated from encryption logic; isolate I/O from core services.
-- Default to secure and explicit configuration; avoid implicit global state.
-- Prefer dependency injection (constructor-based) for services and utilities; avoid static-heavy designs except for constants.
-- Ensure logging/output is minimal and user-focused; avoid noisy diagnostics.
+## Project Context
+- Target Java 17 CLI builds (Gradle, Groovy DSL) with source/target compatibility retained at 17.
+- Optimize for maintainability: immutable data where practical, clear configuration points, and sensible defaults.
+- Favor explicit error handling and user-friendly CLI messaging without excessive verbosity.
 
-## Documentation and Comments
-- Keep inline comments sparse and purposeful; rely on clear code structure instead of extensive narration.
-- Keep README-style guidance succinct; prioritize actionable instructions.
+## Style Preferences
+- Keep formatting compact, avoiding superfluous blank lines and inline comments.
+- Use descriptive identifiers instead of commentary to convey intent.
+- Maintain consistent package structure and avoid God classes; extract helpers where they improve readability.
