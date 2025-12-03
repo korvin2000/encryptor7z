@@ -1,0 +1,29 @@
+plugins {
+    id 'application'
+    id 'java'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'commons-cli:commons-cli:1.6.0'
+    implementation 'net.sf.sevenzipjbinding:sevenzipjbinding-windows-amd64:16.02-2.01'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+}
+
+application {
+    mainClass = 'com.example.encryptor7z.EncryptorApp'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
