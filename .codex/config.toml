@@ -1,0 +1,33 @@
+model = "gpt-5.1-codex-max"
+model_reasoning_effort = "high"
+approval_policy = "never"
+
+[code]
+language = "java"
+version = "17"
+style = "compact"
+comments = "minimal"
+target = "cli"
+
+[project]
+build_tool = "gradle"
+dsl = "groovy"
+java_release = 17
+packaging = "application"
+dependencies = [
+  "picocli:latest",
+  "slf4j-api:latest"
+]
+
+[guidelines]
+structure = "layered"
+patterns = ["command", "builder", "factory"]
+testing = "avoid_junit"
+logging = "concise"
+error_handling = "fail_fast"
+
+[formatting]
+indent = 4
+max_line_length = 120
+trim_trailing_whitespace = true
+insert_final_newline = true
