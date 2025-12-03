@@ -28,7 +28,10 @@ repositories {
 dependencies {
     implementation 'commons-cli:commons-cli:1.6.0'
     implementation 'net.sf.sevenzipjbinding:sevenzipjbinding-windows-amd64:16.02-2.01'
-
+    implementation 'commons-io:commons-io:2.21.0'
+    implementation 'org.apache.commons:commons-lang3:3.20.0'
+    implementation 'commons-codec:commons-codec:1.20.0'
+    implementation 'me.xuender:unidecode:0.0.7'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
 }
 

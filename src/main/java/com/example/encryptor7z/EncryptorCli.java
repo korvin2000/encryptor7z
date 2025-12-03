@@ -10,6 +10,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.StringUtils;
 
 final class EncryptorCli {
     private static final String TOOL_NAME = "encryptor7z";
@@ -34,8 +35,11 @@ final class EncryptorCli {
 
     private CliRequest buildRequest(CommandLine commandLine) {
         var operation = Operation.from(commandLine.getOptionValue("mode"));
-        var input = Path.of(commandLine.getOptionValue("input"));
-        var output = Path.of(commandLine.getOptionValue("output"));
+
+	    String inputArg = commandLine.getOptionValue("input");
+        var input = Path.of(inputArg);
+	    String outputArg = commandLine.getOptionValue("output");
+        var output = Path.of(StringUtils.isBlank(outputArg) ? inputArg : outputArg);
         var password = commandLine.getOptionValue("password").toCharArray();
 
         validatePaths(input, output);
@@ -43,11 +47,11 @@ final class EncryptorCli {
     }
 
     private void validatePaths(Path input, Path output) {
-        if (!Files.isRegularFile(input)) {
-            throw new IllegalArgumentException("Input must be an existing file: " + input);
+        if (!Files.isDirectory(input)) {
+            throw new IllegalArgumentException("Input must be an existing directory: " + input);
         }
-        if (Files.isDirectory(output)) {
-            throw new IllegalArgumentException("Output must be a file path, not a directory: " + output);
+        if (!Files.isDirectory(output)) {
+            throw new IllegalArgumentException("Output must be a directory path, not a file: " + output);
         }
     }
 
@@ -63,16 +67,16 @@ final class EncryptorCli {
         options.addOption(Option.builder("i")
                 .longOpt("input")
                 .hasArg()
-                .argName("file")
+                .argName("path")
                 .required()
                 .desc("Path to the source archive or directory")
                 .build());
         options.addOption(Option.builder("o")
                 .longOpt("output")
                 .hasArg()
-                .argName("file")
-                .required()
-                .desc("Destination archive path")
+				.required(false)
+                .argName("path")
+                .desc("Destination path")
                 .build());
         options.addOption(Option.builder("p")
                 .longOpt("password")
