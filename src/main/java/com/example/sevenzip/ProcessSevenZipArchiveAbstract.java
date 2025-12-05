@@ -1,9 +1,5 @@
 package com.example.sevenzip;
 
-/* BEGIN_SNIPPET(CompressSevenZipArchive) */
-
-import com.example.encryption.Encryptor;
-import com.example.sevenzip.creation.CreationCallbackEncrypt;
 import com.example.sevenzip.extraction.ArchiveStructReader;
 import com.example.sevenzip.model.ArcItem;
 import net.sf.sevenzipjbinding.IOutCreateArchive7z;
@@ -24,7 +20,8 @@ public abstract class ProcessSevenZipArchiveAbstract {
 
 	public void processArchive(File inputFile, File outputFile)  {
 
-		List<ArcItem> items= ArchiveStructReader.readArchive(inputFile);
+		ArchiveStructReader reader = new ArchiveStructReader();
+		List<ArcItem> items= reader.readArchive(inputFile);
 
 		boolean success = false;
 		RandomAccessFile archiveFile = null;
@@ -57,6 +54,7 @@ public abstract class ProcessSevenZipArchiveAbstract {
 				System.err.println("Error closing file: ");
 				success = false;
 			}
+			reader.finalize();
 		}
 		if (success) {
 			System.out.println("ok");
@@ -74,4 +72,3 @@ public abstract class ProcessSevenZipArchiveAbstract {
 		return success;
 	}
 }
-/* END_SNIPPET */

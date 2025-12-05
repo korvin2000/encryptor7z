@@ -61,13 +61,16 @@ public class Utils {
 	}
 
 	public static void writeBufferToFile(ByteBuffer buffer, Path path) throws IOException {
-		// make sure buffer is in read mode
-		if (buffer.position() != 0 && buffer.limit() == buffer.capacity()) {
-			buffer.flip(); // or manage this outside depending on your API
+		if (buffer == null) {
+			throw new IllegalArgumentException("Buffer is null");
 		}
 
-		try (FileChannel channel = FileChannel.open( path, Set.of(StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)
-		)) {
+		ByteBuffer writeBuffer = buffer.asReadOnlyBuffer();
+		if (writeBuffer.position() != 0) {
+			writeBuffer.flip();
+		}
+
+		try (FileChannel channel = FileChannel.open(path, Set.of(StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE))) {
 			while (buffer.hasRemaining()) {
 				channel.write(buffer);
 			}

@@ -82,7 +82,7 @@ public class Encryptor {
 			cipher.update(header(encName), output);
 			cipher.doFinal(inputData, output);
 
-			output.rewind();
+			output.flip()   ;
 			return output;
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
@@ -108,6 +108,8 @@ public class Encryptor {
 			output.get(name, 0, length);
 
 			output = output.slice();
+			int safeLimit = Math.min(output.remaining(), fileSize);
+			output.limit(safeLimit);
 			return new FileStruct(output, asString(name));
 		} catch (Exception e) {
 			throw new IllegalStateException(e);

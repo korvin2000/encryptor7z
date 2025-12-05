@@ -44,7 +44,7 @@ public class CreationCallbackDecrypt extends CreationCallbackAbstract {
 	InputStream onItemStream(int index, ArcItem arcItem, ByteBuffer byteBuffer ) {
 		ByteBuffer outBuffer;
 		if (Utils.isEncrypted(FilenameUtils.getExtension(arcItem.path()))) {
-			Encryptor.FileStruct fs = Encryptor.decrypt(getCipher(), byteBuffer);
+			Encryptor.FileStruct fs = Encryptor.decrypt(Encryptor.getDecryptionCipher(), byteBuffer);
 			outBuffer = fs.data();
 		} else {
 			outBuffer = byteBuffer;

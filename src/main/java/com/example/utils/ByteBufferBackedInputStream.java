@@ -12,7 +12,7 @@ public final class ByteBufferBackedInputStream extends InputStream {
 
 	@Override
 	public int read() {
-		if (!buf.hasRemaining()) {
+		if (buf == null || !buf.hasRemaining()) {
 			return -1;
 		}
 		return buf.get() & 0xFF;
@@ -20,7 +20,7 @@ public final class ByteBufferBackedInputStream extends InputStream {
 
 	@Override
 	public int read(byte[] bytes, int off, int len) {
-		if (!buf.hasRemaining()) {
+		if (buf == null || !buf.hasRemaining()) {
 			return -1;
 		}
 		int toRead = Math.min(len, buf.remaining());
@@ -30,12 +30,14 @@ public final class ByteBufferBackedInputStream extends InputStream {
 
 	@Override
 	public int available() {
-		return buf.remaining();
+		return buf == null ? 0 : buf.remaining();
 	}
 
 	@Override
 	public void close() {
-		buf.clear();
-		buf = null;
+		if (buf != null) {
+			buf.clear();
+			buf = null;
+		}
 	}
 }

@@ -38,7 +38,7 @@ public class Encryption {
 		String fileName = FilenameUtils.getName(fullPath);
 		String encodedName = EncodeName.encrypt(fileName)+".cry";
 		Path destinationFile = nextAvailable(destinationPath, encodedName, 0);
-		Cipher cipher = CreationCallbackEncrypt.LazyHolder.INSTANCE;
+		Cipher cipher = Encryptor.getEncryptionCipher();
 		ByteBuffer buffer = Utils.mapReadOnly(sourceImage);
 
 		ByteBuffer result = Encryptor.encrypt(cipher, new Encryptor.FileStruct(buffer, fileName));
@@ -58,7 +58,7 @@ public class Encryption {
 		String baseName = FilenameUtils.getBaseName(fullPath);
 		String decodedName = EncodeName.decrypt(baseName);
 		Path destinationFile = nextAvailable(destinationPath, decodedName, 0);
-		Cipher cipher = CreationCallbackDecrypt.LazyHolder.INSTANCE;
+		Cipher cipher = Encryptor.getDecryptionCipher();
 		ByteBuffer buffer = Utils.mapReadOnly(sourceImage);
 
 		Encryptor.FileStruct result = Encryptor.decrypt(cipher, buffer);

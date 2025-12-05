@@ -1,7 +1,5 @@
 package com.example.sevenzip;
 
-/* BEGIN_SNIPPET(CompressSevenZipArchive) */
-
 import com.example.encryption.Encryptor;
 import com.example.sevenzip.creation.CreationCallbackDecrypt;
 import com.example.sevenzip.extraction.ArchiveStructReader;

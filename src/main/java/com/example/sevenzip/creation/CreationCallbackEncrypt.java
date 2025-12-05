@@ -43,7 +43,7 @@ public class CreationCallbackEncrypt extends CreationCallbackAbstract {
 	InputStream onItemStream(int index, ArcItem arcItem, ByteBuffer byteBuffer ) {
 		ByteBuffer encryptedBuffer;
 		if (Utils.isImage(FilenameUtils.getExtension(arcItem.path()))) {
-			encryptedBuffer = Encryptor.encrypt(getCipher(), new Encryptor.FileStruct(byteBuffer, arcItem.nameOnly()));
+			encryptedBuffer = Encryptor.encrypt(Encryptor.getEncryptionCipher(), new Encryptor.FileStruct(byteBuffer, arcItem.nameOnly()));
 		} else {
 			encryptedBuffer = byteBuffer;
 		}
