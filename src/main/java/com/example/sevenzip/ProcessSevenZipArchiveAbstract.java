@@ -59,7 +59,7 @@ public abstract class ProcessSevenZipArchiveAbstract {
 			}
 		}
 		if (success) {
-			System.out.println("Compression operation succeeded");
+			System.out.println("ok");
 		}
 	}
 

@@ -55,7 +55,7 @@ public class ItemExtractionCallback implements IArchiveExtractCallback {
 		if (extractOperationResult != ExtractOperationResult.OK) {
 			System.err.println("Extraction error");
 		} else {
-			System.out.println(String.format("%10s ||| %s", bytesProcessed,	inArchive.getProperty(index, PropID.PATH)));
+			//System.out.println(String.format("%10s ||| %s", bytesProcessed,	inArchive.getProperty(index, PropID.PATH)));
 			bytesProcessed = 0;
 		}
 	}

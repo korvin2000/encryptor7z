@@ -2,6 +2,7 @@ package com.example.encryptor7z;
 
 import com.example.encryption.Encryptor;
 import com.example.sevenzip.CompressSevenZipArchive;
+import com.example.sevenzip.DecompressSevenZipArchive;
 import com.example.sevenzip.creation.CreationCallbackDecrypt;
 import com.example.sevenzip.creation.CreationCallbackEncrypt;
 import com.example.utils.EncodeName;
@@ -20,6 +21,10 @@ public class Encryption {
 		Encryptor.setPassword(password);
 	}
 
+	public static Path buildCopyPath(Path source, Path targetDir) {
+		return resolveNonExistingDestination(source, targetDir);
+	}
+
 	/**
 	 * Encrypt image or any file.
 	 *
@@ -27,7 +32,7 @@ public class Encryption {
 	 * @param destinationPath the destination path
 	 * @throws IOException the io exception
 	 */
-	public static void encryptImage(Path sourceImage, Path destinationPath) throws IOException {
+	public static Path encryptImage(Path sourceImage, Path destinationPath) throws IOException {
 
 		String fullPath = sourceImage.getFileName().toString();
 		String fileName = FilenameUtils.getName(fullPath);
@@ -38,6 +43,7 @@ public class Encryption {
 
 		ByteBuffer result = Encryptor.encrypt(cipher, new Encryptor.FileStruct(buffer, fileName));
 		Utils.writeBufferToFile(result, destinationFile);
+		return destinationFile;
 	}
 
 	/**
@@ -47,7 +53,7 @@ public class Encryption {
 	 * @param destinationPath the destination path
 	 * @throws IOException the io exception
 	 */
-	public static void decryptImage(Path sourceImage, Path destinationPath) throws IOException {
+	public static Path decryptImage(Path sourceImage, Path destinationPath) throws IOException {
 		String fullPath = sourceImage.getFileName().toString();
 		String baseName = FilenameUtils.getBaseName(fullPath);
 		String decodedName = EncodeName.decrypt(baseName);
@@ -57,6 +63,7 @@ public class Encryption {
 
 		Encryptor.FileStruct result = Encryptor.decrypt(cipher, buffer);
 		Utils.writeBufferToFile(result.data(), destinationFile);
+		return destinationFile;
 	}
 
 	/**
@@ -65,10 +72,11 @@ public class Encryption {
 	 * @param sourceArchive   the source archive
 	 * @param destinationPath the destination path
 	 */
-	public static void encryptArchive(Path sourceArchive, Path destinationPath) {
+	public static Path encryptArchive(Path sourceArchive, Path destinationPath) {
 		Path destinationArchive = resolveNonExistingDestination(sourceArchive, destinationPath);
 		CompressSevenZipArchive archiver =  new CompressSevenZipArchive();
 		archiver.compressArchive(sourceArchive.toFile(), destinationArchive.toFile());
+		return destinationArchive;
 	}
 
 	/**
@@ -77,10 +85,11 @@ public class Encryption {
 	 * @param sourceArchive   the source archive
 	 * @param destinationPath the destination path
 	 */
-	public static void decryptArchive(Path sourceArchive, Path destinationPath) {
+	public static Path decryptArchive(Path sourceArchive, Path destinationPath) {
 		Path destinationArchive = resolveNonExistingDestination(sourceArchive, destinationPath);
-		CompressSevenZipArchive archiver =  new CompressSevenZipArchive();
-		archiver.compressArchive(sourceArchive.toFile(), destinationArchive.toFile());
+		DecompressSevenZipArchive archiver =  new DecompressSevenZipArchive();
+		archiver.decompressArchive(sourceArchive.toFile(), destinationArchive.toFile());
+		return destinationArchive;
 	}
 
 	private static Path resolveNonExistingDestination(Path sourceFile, Path destinationDir) {

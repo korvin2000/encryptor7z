@@ -40,7 +40,7 @@ final class EncryptorCli {
         var input = Path.of(inputArg);
 	    String outputArg = commandLine.getOptionValue("output");
         var output = Path.of(StringUtils.isBlank(outputArg) ? inputArg : outputArg);
-        var password = commandLine.getOptionValue("password").toCharArray();
+        var password = commandLine.getOptionValue("password");
 
         validatePaths(input, output);
         return new CliRequest(operation, input, output, password);
@@ -112,6 +112,6 @@ final class EncryptorCli {
         }
     }
 
-    record CliRequest(Operation operation, Path input, Path output, char[] password) {
+    record CliRequest(Operation operation, Path input, Path output, String password) {
     }
 }

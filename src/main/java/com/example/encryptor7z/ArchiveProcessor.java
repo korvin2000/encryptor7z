@@ -1,7 +1,8 @@
 package com.example.encryptor7z;
 
-import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import com.example.encryptor7z.EncryptorCli.CliRequest;
+import com.example.utils.Utils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -10,14 +11,11 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
-import java.util.Locale;
+import java.util.Date;
 import java.util.Objects;
 
-import org.apache.commons.io.FilenameUtils;
-
-import com.example.encryptor7z.EncryptorCli.CliRequest;
-import com.example.encryptor7z.EncryptorCli.Operation;
-import com.example.utils.EncodeName;
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 final class ArchiveProcessor {
 
@@ -32,19 +30,18 @@ final class ArchiveProcessor {
         }
     }
 
-    private void encrypt(Path input, Path output, char[] password) {
+    private void encrypt(Path input, Path output, String password) {
         log("Preparing to encrypt", input, output);
         runProcessor(input, output, password, Mode.ENCRYPT);
     }
 
-    private void decrypt(Path input, Path output, char[] password) {
+    private void decrypt(Path input, Path output, String password) {
         log("Preparing to decrypt", input, output);
         runProcessor(input, output, password, Mode.DECRYPT);
     }
 
-    private void runProcessor(Path input, Path output, char[] password, Mode mode) {
+    private void runProcessor(Path input, Path output, String password, Mode mode) {
         Encryption.setPassword(String.valueOf(password));
-        scrub(password);
 
         try {
             Files.walkFileTree(input, new ProcessingVisitor(input, output, mode));
@@ -54,20 +51,11 @@ final class ArchiveProcessor {
     }
 
     private void log(String action, Path input, Path output) {
-        System.out.printf("%s (%s) from %s to %s%n", action, Instant.now(), input, output);
+        System.out.printf("%s (%tT) from %s to %s%n", action, new Date(), input, output);
     }
 
     private void log(String action, Path source, Path destination, String details) {
-        System.out.printf("%s (%s) %s -> %s%s%n", action, Instant.now(), source, destination, details);
-    }
-
-    private void scrub(char[] password) {
-        if (password == null) {
-            return;
-        }
-        for (int index = 0; index < password.length; index++) {
-            password[index] = '\0';
-        }
+        System.out.printf("%s (%tT) %s -> %s%s%n", action, new Date(), source, destination, details);
     }
 
     private enum Mode {
@@ -124,13 +112,16 @@ final class ArchiveProcessor {
 
             long sourceSize = Files.size(source);
             long destinationSize = Files.size(destination);
-            long difference = Math.abs(sourceSize - destinationSize);
+            long difference = sourceSize - destinationSize;
 
-            boolean exceedsThreshold = difference > 1000;
-            if (sourceSize > 0) {
+            boolean exceedsAbsolute = difference > 1200;
+			boolean exceedsRelative = false;
+            if (sourceSize > 0 && difference > 0) {
                 double delta = (double) difference / (double) sourceSize;
-                exceedsThreshold |= delta > 0.01d;
+                exceedsRelative = delta > 0.0125d;
             }
+
+			boolean exceedsThreshold = exceedsAbsolute && exceedsRelative;
 
             if (exceedsThreshold) {
                 System.out.println(CHECK_PREFIX + destination.getFileName());
@@ -142,35 +133,29 @@ final class ArchiveProcessor {
         IMAGE {
             @Override
             Path process(Path source, Path targetDir, Mode mode) throws IOException {
-                Path destination = buildEncryptedPath(source, targetDir);
-                Encryption.encryptImage(source, targetDir);
-                return destination;
+                return Encryption.encryptImage(source, targetDir);
             }
         },
         ENCRYPTED_IMAGE {
             @Override
             Path process(Path source, Path targetDir, Mode mode) throws IOException {
-                Path destination = buildDecryptedPath(source, targetDir);
-                Encryption.decryptImage(source, targetDir);
-                return destination;
+                return Encryption.decryptImage(source, targetDir);
             }
         },
         ARCHIVE {
             @Override
             Path process(Path source, Path targetDir, Mode mode) {
-                Path destination = buildArchivePath(source, targetDir);
                 if (mode == Mode.ENCRYPT) {
-                    Encryption.encryptArchive(source, targetDir);
+                    return Encryption.encryptArchive(source, targetDir);
                 } else {
-                    Encryption.decryptArchive(source, targetDir);
+	                return Encryption.decryptArchive(source, targetDir);
                 }
-                return destination;
             }
         },
         OTHER {
             @Override
             Path process(Path source, Path targetDir, Mode mode) throws IOException {
-                Path destination = buildCopyPath(source, targetDir);
+                Path destination = Encryption.buildCopyPath(source, targetDir);
                 Files.copy(source, destination, REPLACE_EXISTING, COPY_ATTRIBUTES);
                 return destination;
             }
@@ -183,71 +168,22 @@ final class ArchiveProcessor {
         abstract Path process(Path source, Path targetDir, Mode mode) throws IOException;
 
         static FileCategory from(Path source, Mode mode) {
-            String extension = FilenameUtils.getExtension(source.getFileName().toString())
-                    .toLowerCase(Locale.ROOT);
+            String extension = FilenameUtils.getExtension(source.getFileName().toString()).toLowerCase();
             if (mode == Mode.DECRYPT) {
-                if ("cry".equals(extension)) {
+                if (Utils.isEncrypted(extension)) {
                     return ENCRYPTED_IMAGE;
                 }
-                return isArchive(extension) ? ARCHIVE : OTHER;
+                return Utils.isArchive(extension) ? ARCHIVE : OTHER;
             }
-            if (isImage(extension)) {
+            if (Utils.isImage(extension)) {
                 return IMAGE;
             }
-            if (isArchive(extension)) {
+            if (Utils.isArchive(extension)) {
                 return ARCHIVE;
             }
             return OTHER;
         }
 
-        private static boolean isImage(String extension) {
-            return switch (extension) {
-                case "jpg", "jpeg", "png", "gif" -> true;
-                default -> false;
-            };
-        }
-
-        private static boolean isArchive(String extension) {
-            return switch (extension) {
-                case "zip", "rar", "7z" -> true;
-                default -> false;
-            };
-        }
-
-        private static Path buildEncryptedPath(Path source, Path targetDir) {
-            String encodedName = EncodeName.encrypt(source.getFileName().toString()) + ".cry";
-            return uniquePath(targetDir, encodedName);
-        }
-
-        private static Path buildDecryptedPath(Path source, Path targetDir) {
-            String decodedName = EncodeName.decrypt(FilenameUtils.getBaseName(source.getFileName().toString()));
-            return uniquePath(targetDir, decodedName);
-        }
-
-        private static Path buildArchivePath(Path source, Path targetDir) {
-            return uniquePath(targetDir, source.getFileName().toString());
-        }
-
-        private static Path buildCopyPath(Path source, Path targetDir) {
-            return uniquePath(targetDir, source.getFileName().toString());
-        }
-
-        private static Path uniquePath(Path directory, String desiredName) {
-            Path candidate = directory.resolve(desiredName);
-            if (!Files.exists(candidate)) {
-                return candidate;
-            }
-            String base = FilenameUtils.getBaseName(desiredName);
-            String extension = FilenameUtils.getExtension(desiredName);
-            String extPart = extension.isBlank() ? "" : "." + extension;
-            int counter = 1;
-            Path result = candidate;
-            while (Files.exists(result)) {
-                String candidateName = "%s_%d%s".formatted(base, counter++, extPart);
-                result = directory.resolve(candidateName);
-            }
-            return result;
-        }
     }
 
     @FunctionalInterface

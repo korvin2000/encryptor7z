@@ -2,15 +2,12 @@ package com.example.utils;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.HashSet;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
 import java.util.Set;
 public class Utils {
 
@@ -32,6 +29,13 @@ public class Utils {
 
 	public static boolean isImage(String extension) {
 		return extensions.contains(extension.toLowerCase());
+	}
+
+	public static boolean isArchive(String extension) {
+		return switch (extension.toLowerCase()) {
+			case "zip", "rar", "7z" -> true;
+			default -> false;
+		};
 	}
 
 	public static boolean isEncrypted(String extension) {
