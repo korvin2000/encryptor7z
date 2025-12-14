@@ -98,7 +98,7 @@ final class ArchiveProcessor {
             try {
                 var category = FileCategory.from(source, mode);
                 Path destination = category.processor().apply(source, targetDir, mode);
-                log("Processed", source, destination, "");
+                //log("Processed", source, destination, "");
                 verifySize(source, destination);
             } catch (Exception exception) {
                 log("Failed", source, targetDir, ": " + exception.getMessage());

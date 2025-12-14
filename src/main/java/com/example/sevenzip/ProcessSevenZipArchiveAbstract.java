@@ -56,8 +56,8 @@ public abstract class ProcessSevenZipArchiveAbstract {
 			}
 			reader.finalize();
 		}
-		if (success) {
-			System.out.println("ok");
+		if (!success) {
+			System.out.println("failed");
 		}
 	}
 

@@ -3,17 +3,17 @@ package com.example.encryptor7z;
 import com.example.encryption.Encryptor;
 import com.example.sevenzip.CompressSevenZipArchive;
 import com.example.sevenzip.DecompressSevenZipArchive;
-import com.example.sevenzip.creation.CreationCallbackDecrypt;
-import com.example.sevenzip.creation.CreationCallbackEncrypt;
 import com.example.utils.EncodeName;
 import com.example.utils.Utils;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.crypto.Cipher;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Encryption {
 
@@ -73,7 +73,16 @@ public class Encryption {
 	 * @param destinationPath the destination path
 	 */
 	public static Path encryptArchive(Path sourceArchive, Path destinationPath) {
-		Path destinationArchive = resolveNonExistingDestination(sourceArchive, destinationPath);
+		Path src;
+		String fileName = sourceArchive.getFileName().toString();
+		if (fileName.toLowerCase().endsWith(".7z")) {
+			src = sourceArchive;
+		} else {
+			String newName = FilenameUtils.getBaseName(fileName) + ".7z";
+			src = Paths.get(newName);
+		}
+
+		Path destinationArchive = resolveNonExistingDestination(src, destinationPath);
 		CompressSevenZipArchive archiver =  new CompressSevenZipArchive();
 		archiver.compressArchive(sourceArchive.toFile(), destinationArchive.toFile());
 		return destinationArchive;
