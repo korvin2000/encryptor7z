@@ -14,6 +14,19 @@ A starter Java 17 command-line tool scaffolded with Gradle for encrypting and de
    ./gradlew run --args "-m encrypt -i ./path/to/input.zip -o ./path/to/output.7z -p secret"
    ```
 
+## Building an executable fat JAR
+To produce a runnable JAR that bundles all dependencies, use the Shadow plugin task:
+
+```bash
+./gradlew shadowJar
+```
+
+The resulting artifact is written to `build/libs/` with an `-all` classifier (for example, `encryptor7z-0.0.1-SNAPSHOT-all.jar`). Run it with your desired arguments:
+
+```bash
+java -jar build/libs/encryptor7z-0.0.1-SNAPSHOT-all.jar -m encrypt -i ./path/to/input.zip -o ./path/to/output.7z -p secret
+```
+
 ## Command-line options
 - `-m, --mode` — `encrypt` or `decrypt`.
 - `-i, --input` — path to the source archive.
